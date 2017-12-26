@@ -21,13 +21,13 @@ use util::collections::{OrderMap, OrderMapEntry};
 use coprocessor::codec::table::RowColsDict;
 use coprocessor::codec::datum::{self, approximate_size, Datum, DatumEncoder};
 use coprocessor::endpoint::SINGLE_GROUP;
-use coprocessor::select::aggregate::{self, AggrFunc};
-use coprocessor::select::xeval::EvalContext;
-use coprocessor::dag::expr::Expression;
+use coprocessor::dag::expr::{EvalContext, Expression};
 use coprocessor::metrics::*;
+use coprocessor::local_metrics::*;
 use coprocessor::Result;
 use storage::Statistics;
 
+use super::aggregate::{self, AggrFunc};
 use super::{inflate_with_col_for_dag, Executor, ExprColumnRefVisitor, Row};
 
 struct AggrFuncExpr {
@@ -201,6 +201,10 @@ impl Executor for AggregationExecutor {
 
     fn collect_statistics_into(&mut self, statistics: &mut Statistics) {
         self.src.collect_statistics_into(statistics);
+    }
+
+    fn collect_metrics_into(&mut self, metrics: &mut ScanCounter) {
+        self.src.collect_metrics_into(metrics);
     }
 }
 
